@@ -1,0 +1,14 @@
+# игнорируем CMake build каталоги
+build/
+Build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# опционально, если ты на Windows
+*.exe
+*.obj
+*.pdb
+*.lib
+*.dll
