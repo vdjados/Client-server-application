@@ -22,7 +22,8 @@ public:
     SocketWrapper();
     ~SocketWrapper();
 
-    bool init();                         // Инициализация (только Windows)
+    static bool init();                  
+    static void cleanup();
     bool create();                       // socket()
     bool bind(unsigned short port);     // bind()
     bool listen();                       // listen()
@@ -33,6 +34,11 @@ public:
     void close();                       // закрытие
     bool isValid() const;
 
+    SocketWrapper(const SocketWrapper&) = delete; // Запрет копирования
+    SocketWrapper& operator=(const SocketWrapper&) = delete;
+    
+    SocketWrapper(SocketWrapper&& other) noexcept; // Конструктор перемещения
+    SocketWrapper& operator=(SocketWrapper&& other) noexcept; 
 private:
     SocketType sock;
 };

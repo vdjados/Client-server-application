@@ -4,7 +4,7 @@
 int main() {
     Client client;
     // Подключаемся к серверу (127.0.0.1, порт 12345)
-    if (client.connectToServer("127.0.0.1", 12345)) {
+    if (client.connectToServer("127.0.0.1", 54000)) {
         std::cout << "Enter message (exit to interrupt connection):\n";
         std::string input;
         while (true) {

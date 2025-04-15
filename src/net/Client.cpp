@@ -6,7 +6,7 @@ Client::Client() {
 }
 
 Client::~Client() {
-    clientSocket.close();
+    
 }
 
 bool Client::connectToServer(const std::string& ip, unsigned short port) {

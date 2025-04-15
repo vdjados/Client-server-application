@@ -5,17 +5,31 @@ SocketWrapper::SocketWrapper() : sock(INVALID_SOCKET) {}
 
 SocketWrapper::~SocketWrapper() {
     close();
-    #ifdef _WIN32
-        WSACleanup();
-    #endif
 }
+
+#ifdef _WIN32
+    static int wsaInitCount = 0;
+#endif
 
 bool SocketWrapper::init() {
     #ifdef _WIN32
+        if (wsaInitCount++ > 0) return true;
+        
         WSADATA wsaData;
-        return WSAStartup(MAKEWORD(2, 2), &wsaData) == 0;
+        if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+            return false;
+        }
+        return true;
     #else
         return true;
+    #endif
+}
+
+void SocketWrapper::cleanup() {
+    #ifdef _WIN32
+        if (--wsaInitCount == 0) {
+            WSACleanup();
+        }
     #endif
 }
 
@@ -40,11 +54,11 @@ bool SocketWrapper::listen() {
 SocketWrapper SocketWrapper::accept() {
     SocketWrapper client;
     sockaddr_in clientAddr{};
-#ifdef _WIN32
-    int addrLen = sizeof(clientAddr);
-#else
-    socklen_t addrLen = sizeof(clientAddr);
-#endif
+    #ifdef _WIN32
+        int addrLen = sizeof(clientAddr);
+    #else
+        socklen_t addrLen = sizeof(clientAddr);
+    #endif
     client.sock = ::accept(sock, (sockaddr*)&clientAddr, &addrLen);
     return client;
 }
@@ -61,6 +75,7 @@ bool SocketWrapper::connect(const std::string& ip, unsigned short port) {
             return false;
         }
     #endif
+
     return ::connect(sock, (sockaddr*)&addr, sizeof(addr)) != SOCKET_ERROR;
 }
 
@@ -70,12 +85,22 @@ int SocketWrapper::send(const std::string& data) {
 
 int SocketWrapper::receive(std::string& data) {
     char buffer[1024];
-    memset(buffer, 0, sizeof(buffer));
-    int received = ::recv(sock, buffer, sizeof(buffer) - 1, 0);
-    if (received > 0) {
-        buffer[received] = '\0';
-        data = buffer;
+    int received = ::recv(sock, buffer, sizeof(buffer), 0); // Читаем все 1024 байта
+    
+    if (received == SOCKET_ERROR) {
+        #ifdef _WIN32
+            std::cerr << "Receive error: " << WSAGetLastError() << "\n";
+        #else
+            std::cerr << "Receive error: " << errno << "\n";
+        #endif
+        return SOCKET_ERROR;
+    } else if (received == 0) {
+        // Соединение закрыто клиентом
+        return 0;
     }
+    
+    // Копируем все полученные байты (включая нулевые)
+    data.assign(buffer, received);
     return received;
 }
 
@@ -92,4 +117,18 @@ void SocketWrapper::close() {
 
 bool SocketWrapper::isValid() const {
     return sock != INVALID_SOCKET;
+}
+
+SocketWrapper::SocketWrapper(SocketWrapper&& other) noexcept {
+    sock = other.sock;
+    other.sock = INVALID_SOCKET; // "Обнуляем" исходный объект
+}
+
+SocketWrapper& SocketWrapper::operator=(SocketWrapper&& other) noexcept {
+    if (this != &other) {
+        close();
+        sock = other.sock;
+        other.sock = INVALID_SOCKET;
+    }
+    return *this;
 }
