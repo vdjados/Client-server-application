@@ -1,20 +1,24 @@
 cmake_minimum_required(VERSION 3.10)
-project(SocketServer)
+project(NetworkProject)
 
-# Установка стандарта C++
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Указываем путь к исходникам
-add_executable(ServerApp Server.cpp)
+add_executable(Server
+    main/ServerMain.cpp
+    src/net/Server.cpp
+    src/net/SocketWrapper.cpp
+)
 
-# Линкуем библиотеку ws2_32 для Windows
+add_executable(Client
+    main/ClientMain.cpp
+    src/net/Client.cpp
+    src/net/SocketWrapper.cpp
+)
+
+target_include_directories(Server PRIVATE include)
+target_include_directories(Client PRIVATE include)
+
 if(WIN32)
-    target_link_libraries(ServerApp ws2_32)
-endif()
-
-
-add_executable(ClientApp Client.cpp)
-if(WIN32)
-    target_link_libraries(ClientApp ws2_32)
+    target_link_libraries(Server PRIVATE ws2_32)
+    target_link_libraries(Client PRIVATE ws2_32)
 endif()
