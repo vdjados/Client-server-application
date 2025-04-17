@@ -19,12 +19,9 @@ bool ProcessingServer::run(unsigned short listenPort,
                            const std::string& displayIp,
                            unsigned short displayPort)
 {
-    // 1) Устанавливаем соединение с Display‑сервером
     if (!connectToDisplay(displayIp, displayPort)) {
-        return false;  // выходим, если не удалось
+        return false;
     }
-
-    // 2) Делаем всю серверную работу родительского класса
     return ServerBase::run(listenPort);
 }
 
@@ -65,7 +62,6 @@ void ProcessingServer::handleClient(SocketWrapper& clientSocket) {
         j["result"] = result;
         std::string jsonStr = j.dump();
 
-        // Сформируем простой HTTP POST-запрос:
         std::ostringstream req;
         req << "POST / HTTP/1.1\r\n";
         req << "Host: display.server\r\n";
@@ -92,7 +88,7 @@ std::string ProcessingServer::processData(const std::string& input) {
 
     while (iss >> word) {
         if (seen.insert(word).second) {
-            result.push_back(word);  // Только новые слова
+            result.push_back(word); 
         }
     }
 

@@ -24,20 +24,20 @@ public:
 
     static bool init();                  
     void cleanup();
-    bool create();                       // socket()
-    bool bind(unsigned short port);     // bind()
-    bool listen();                       // listen()
-    SocketWrapper accept();             // accept()
-    bool connect(const std::string& ip, unsigned short port);  // connect()
-    int send(const std::string& data);  // send()
-    int receive(std::string& data);     // recv()
-    void close();                       // закрытие
+    bool create();                       
+    bool bind(unsigned short port);     
+    bool listen();                      
+    SocketWrapper accept();            
+    bool connect(const std::string& ip, unsigned short port);  
+    int send(const std::string& data);  
+    int receive(std::string& data);     
+    void close();                     
     bool isValid() const;
 
-    SocketWrapper(const SocketWrapper&) = delete; // Запрет копирования
+    SocketWrapper(const SocketWrapper&) = delete; 
     SocketWrapper& operator=(const SocketWrapper&) = delete;
     
-    SocketWrapper(SocketWrapper&& other) noexcept; // Конструктор перемещения
+    SocketWrapper(SocketWrapper&& other) noexcept; 
     SocketWrapper& operator=(SocketWrapper&& other) noexcept; 
 private:
     SocketType sock;

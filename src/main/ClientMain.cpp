@@ -1,7 +1,7 @@
 #include "net/Client.h"
 #include <iostream>
 #include <string>
-#include <cstdlib>  // для std::stoi
+#include <cstdlib> 
 
 int main(int argc, char* argv[]) {
     if (argc < 3) {

@@ -7,10 +7,10 @@ public:
     ServerBase();
     virtual ~ServerBase();
 
-    bool run(unsigned short port);  // Запускает сервер и вызывает handleClient
+    bool run(unsigned short port);
 
 protected:
-    virtual void handleClient(SocketWrapper& clientSocket) = 0;  // Реализуется в потомке
+    virtual void handleClient(SocketWrapper& clientSocket) = 0;
 
     SocketWrapper serverSocket;
 };

@@ -6,7 +6,7 @@ ServerBase::ServerBase() {
 }
 
 ServerBase::~ServerBase() {
-    // serverSocket автоматически закроется в деструкторе
+    
 }
 
 bool ServerBase::run(unsigned short port) {
@@ -35,7 +35,6 @@ bool ServerBase::run(unsigned short port) {
 
     std::cout << "ServerBase: Client connected.\n";
 
-    // Передаём клиентский сокет потомку
     handleClient(client);
     return true;
 }

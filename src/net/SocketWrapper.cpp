@@ -79,7 +79,7 @@ bool SocketWrapper::connect(const std::string& ip, unsigned short port) {
         addr.sin_addr.s_addr = inet_addr(ip.c_str());
     #else
         if (inet_pton(AF_INET, ip.c_str(), &addr.sin_addr) <= 0) {
-            std::cerr << "Ошибка преобразования IP адреса\n";
+            std::cerr << "Failed to transform IP adress\n";
             return false;
         }
     #endif
@@ -93,7 +93,7 @@ int SocketWrapper::send(const std::string& data) {
 
 int SocketWrapper::receive(std::string& data) {
     char buffer[1024];
-    int received = ::recv(sock, buffer, sizeof(buffer), 0); // Читаем все 1024 байта
+    int received = ::recv(sock, buffer, sizeof(buffer), 0);
     
     if (received == SOCKET_ERROR) {
         #ifdef _WIN32
@@ -103,11 +103,9 @@ int SocketWrapper::receive(std::string& data) {
         #endif
         return SOCKET_ERROR;
     } else if (received == 0) {
-        // Соединение закрыто клиентом
         return 0;
     }
     
-    // Копируем все полученные байты (включая нулевые)
     data.assign(buffer, received);
     return received;
 }
@@ -129,7 +127,7 @@ bool SocketWrapper::isValid() const {
 
 SocketWrapper::SocketWrapper(SocketWrapper&& other) noexcept {
     sock = other.sock;
-    other.sock = INVALID_SOCKET; // "Обнуляем" исходный объект
+    other.sock = INVALID_SOCKET;
 }
 
 SocketWrapper& SocketWrapper::operator=(SocketWrapper&& other) noexcept {

@@ -9,7 +9,7 @@ void DisplayServer::handleClient(SocketWrapper& clientSocket) {
 
         auto jsonStart = received.find("\r\n\r\n");
         if (jsonStart != std::string::npos) {
-            std::string body = received.substr(jsonStart + 4); // тело запроса
+            std::string body = received.substr(jsonStart + 4);
 
             try {
                 nlohmann::json j = nlohmann::json::parse(body);
@@ -25,16 +25,3 @@ void DisplayServer::handleClient(SocketWrapper& clientSocket) {
 
     std::cout << "DisplayServer: Client disconnected.\n";
 }
-
-
-/*#include "net/DisplayServer.h"
-#include <iostream>
-
-void DisplayServer::handleClient(SocketWrapper& clientSocket) {
-    std::string received;
-    while (clientSocket.receive(received) > 0) {
-        std::cout << "DisplayServer: Received data: " << received << "\n";
-    }
-    std::cout << "DisplayServer: Client disconnected.\n";
-}
-*/
