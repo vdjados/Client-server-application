@@ -9,8 +9,7 @@ public:
     ProcessingServer();
     ~ProcessingServer() override;
 
-    // Теперь run принимает и IP, и порт удалённого Display‑сервера
-    void run(unsigned short listenPort,
+    bool run(unsigned short listenPort,
              const std::string& displayIp,
              unsigned short displayPort);
 

@@ -23,7 +23,7 @@ public:
     ~SocketWrapper();
 
     static bool init();                  
-    static void cleanup();
+    void cleanup();
     bool create();                       // socket()
     bool bind(unsigned short port);     // bind()
     bool listen();                       // listen()
@@ -41,4 +41,9 @@ public:
     SocketWrapper& operator=(SocketWrapper&& other) noexcept; 
 private:
     SocketType sock;
+
+    #ifdef _WIN32
+        static int wsaCount;
+        bool inited_;  
+    #endif
 };

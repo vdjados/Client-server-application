@@ -1,8 +1,11 @@
 #include "net/ProcessingServer.h"
 #include <iostream>
 #include <sstream>
-#include <set>
+#include <unordered_set>
 #include <algorithm>
+
+#include "ext/json.hpp"
+using json = nlohmann::json;
 
 ProcessingServer::ProcessingServer() {
     displaySocket.init();
@@ -12,17 +15,17 @@ ProcessingServer::~ProcessingServer() {
     displaySocket.close();
 }
 
-void ProcessingServer::run(unsigned short listenPort,
+bool ProcessingServer::run(unsigned short listenPort,
                            const std::string& displayIp,
                            unsigned short displayPort)
 {
     // 1) Устанавливаем соединение с Display‑сервером
     if (!connectToDisplay(displayIp, displayPort)) {
-        return;  // выходим, если не удалось
+        return false;  // выходим, если не удалось
     }
 
     // 2) Делаем всю серверную работу родительского класса
-    ServerBase::run(listenPort);
+    return ServerBase::run(listenPort);
 }
 
 bool ProcessingServer::connectToDisplay(const std::string& ip,
@@ -55,9 +58,25 @@ void ProcessingServer::handleClient(SocketWrapper& clientSocket) {
         clientSocket.send("Data received.");
 
         std::string result = processData(input);
+
         std::cout << "ProcessingServer: Processed: " << result << "\n";
 
-        displaySocket.send(result);
+        json j;
+        j["result"] = result;
+        std::string jsonStr = j.dump();
+
+        // Сформируем простой HTTP POST-запрос:
+        std::ostringstream req;
+        req << "POST / HTTP/1.1\r\n";
+        req << "Host: display.server\r\n";
+        req << "Content-Type: application/json\r\n";
+        req << "Content-Length: " << jsonStr.size() << "\r\n";
+        req << "\r\n";
+        req << jsonStr;
+
+        std::string request = req.str();
+
+        displaySocket.send(request);
     }
 }
 
@@ -66,13 +85,22 @@ bool ProcessingServer::isValidData(const std::string& input) {
 }
 
 std::string ProcessingServer::processData(const std::string& input) {
+    std::unordered_set<std::string> seen;
+    std::vector<std::string> result;
     std::istringstream iss(input);
-    std::set<std::string> uniq;
-    std::string w;
-    while (iss >> w) uniq.insert(w);
+    std::string word;
+
+    while (iss >> word) {
+        if (seen.insert(word).second) {
+            result.push_back(word);  // Только новые слова
+        }
+    }
+
     std::ostringstream oss;
-    for (auto& s : uniq) oss << s << " ";
-    auto s = oss.str();
-    if (!s.empty()) s.pop_back();
-    return s;
+    for (size_t i = 0; i < result.size(); ++i) {
+        if (i > 0) oss << " ";
+        oss << result[i];
+    }
+
+    return oss.str();
 }

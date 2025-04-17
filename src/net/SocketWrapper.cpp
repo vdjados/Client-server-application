@@ -1,19 +1,25 @@
 #include "net/SocketWrapper.h"
 #include <iostream>
 
-SocketWrapper::SocketWrapper() : sock(INVALID_SOCKET) {}
+SocketWrapper::SocketWrapper()
+  : sock(INVALID_SOCKET)
+#ifdef _WIN32
+  , inited_(false)
+#endif
+{}
 
 SocketWrapper::~SocketWrapper() {
     close();
+    cleanup();
 }
 
 #ifdef _WIN32
-    static int wsaInitCount = 0;
+    int SocketWrapper::wsaCount = 0;
 #endif
 
 bool SocketWrapper::init() {
     #ifdef _WIN32
-        if (wsaInitCount++ > 0) return true;
+        if (wsaCount++ > 0) return true;
         
         WSADATA wsaData;
         if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
@@ -27,8 +33,10 @@ bool SocketWrapper::init() {
 
 void SocketWrapper::cleanup() {
     #ifdef _WIN32
-        if (--wsaInitCount == 0) {
-            WSACleanup();
+        if (inited_) {
+            if (--wsaCount == 0) {
+                WSACleanup();
+            }
         }
     #endif
 }

@@ -3,21 +3,22 @@ project(NetworkProject)
 
 set(CMAKE_CXX_STANDARD 17)
 
+
 add_executable(DisplayServer
-    main/DisplayServerMain.cpp
+    src/main/DisplayServerMain.cpp
     src/net/DisplayServer.cpp
     src/net/ServerBase.cpp
     src/net/SocketWrapper.cpp
 )
 
 add_executable(Client
-    main/ClientMain.cpp
+    src/main/ClientMain.cpp
     src/net/Client.cpp
     src/net/SocketWrapper.cpp
 )
 
 add_executable(ProcessingServer
-    main/ProcessingServerMain.cpp
+    src/main/ProcessingServerMain.cpp
     src/net/ProcessingServer.cpp
     src/net/ServerBase.cpp
     src/net/SocketWrapper.cpp
